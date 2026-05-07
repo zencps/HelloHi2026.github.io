@@ -1,21 +1,3 @@
-"""interface.py -- The View of the Weather Dashboard.
-
-Everything visual lives here:
-
-* the light-blue / gray colour theme (see IDLE_THEME),
-* the search bar + Search button at the top,
-* the huge centred temperature label, the emoji icon, and the
-  humidity / wind-speed card,
-* DYNAMIC re-theming: every weather condition maps to its own emoji and
-  background colour scheme (EMOJI_BY_CONDITION / THEME_BY_CONDITION).
-
-How it connects to the engine:
-    When the user presses Search (or hits Enter inside the entry box),
-    we call ``get_weather(city, api_key)`` from weather_app.api_client
-    and render the returned dictionary. Any network/API problem arrives
-    as an exception, which we translate into a friendly on-screen message.
-"""
-
 import tkinter as tk
 from tkinter import messagebox
 
@@ -25,9 +7,6 @@ from weather_app.api_client import (
     get_weather,
 )
 
-# --------------------------------------------------------------------------- #
-#  Fonts & static colours
-# --------------------------------------------------------------------------- #
 FONT_FAMILY = "Segoe UI"
 ICON_FONT = ("Segoe UI Emoji", 72)
 TEXT_DARK = "#2C3E50"
@@ -36,13 +15,10 @@ ENTRY_BG = "#FFFFFF"
 STATUS_ERROR = "#C0392B"
 WATERMARK_COLOR = "#A6ACAF"
 
-IDLE_EMOJI = "\U0001F30D"  # globe shown before the first search
+IDLE_EMOJI = "\U0001F30D"  
 
 IDLE_THEME = {"background": "#EAF2F8", "card": "#FFFFFF", "accent": "#2874A6"}
 
-# --------------------------------------------------------------------------- #
-#  Dynamic theming: condition group -> emoji / colours
-# --------------------------------------------------------------------------- #
 EMOJI_BY_CONDITION = {
     "thunderstorm": "\u26A1",
     "drizzle": "\U0001F326\uFE0F",
@@ -63,9 +39,6 @@ THEME_BY_CONDITION = {
     "clouds": {"background": "#EAECEE", "card": "#F8F9F9", "accent": "#5D6D7E"},
 }
 
-# The first digit of an OWM condition id decides the family:
-#   2xx thunderstorm | 3xx drizzle | 5xx rain | 6xx snow | 7xx atmosphere
-#   800 clear sky | 80x clouds
 _GROUP_BY_FIRST_DIGIT = {
     2: "thunderstorm",
     3: "drizzle",
@@ -83,15 +56,12 @@ def condition_group(condition_id: int) -> str:
     return _GROUP_BY_FIRST_DIGIT.get(family, "clouds")
 
 
-# --------------------------------------------------------------------------- #
-#  Main window
-# --------------------------------------------------------------------------- #
 class WeatherDashboard(tk.Tk):
     """Main application window (the entire GUI)."""
 
     def __init__(self, api_key: str) -> None:
         super().__init__()
-        self._api_key = api_key  # handed over from main.py
+        self._api_key = api_key  
 
         self.title("Weather Dashboard")
         self.geometry("430x650")
@@ -100,22 +70,18 @@ class WeatherDashboard(tk.Tk):
         self._build_widgets()
         self._apply_theme(IDLE_THEME)
 
-        # Pressing Enter in the search box triggers the same action
-        # as clicking the Search button.
         self.city_entry.bind("<Return>", lambda _event: self._on_search())
         self.city_entry.focus_set()
 
-    # ------------------------------------------------------------------ #
-    #  Widget construction
-    # ------------------------------------------------------------------ #
+
     def _build_widgets(self) -> None:
-        # ---- App heading -------------------------------------------------
+
         self.title_label = tk.Label(
             self, text="Weather Dashboard", font=(FONT_FAMILY, 18, "bold")
         )
         self.title_label.pack(pady=(20, 8))
 
-        # ---- Search row ----------------------------------------------------
+
         self.search_frame = tk.Frame(self)
         self.search_frame.pack()
 
@@ -138,11 +104,10 @@ class WeatherDashboard(tk.Tk):
             relief="flat",
             cursor="hand2",
             padx=18,
-            command=self._on_search,  # button click -> engine query below
+            command=self._on_search,  
         )
         self.search_button.pack(side="left", ipady=6)
 
-        # ---- Big, centred weather display ----------------------------------
         self.icon_label = tk.Label(self, text=IDLE_EMOJI, font=ICON_FONT)
         self.icon_label.pack(pady=(30, 2))
 
@@ -159,7 +124,6 @@ class WeatherDashboard(tk.Tk):
         )
         self.description_label.pack(pady=(0, 4))
 
-        # ---- Humidity / wind card -------------------------------------------
         self.details_card = tk.Frame(self, padx=12, pady=14)
         self.details_card.pack(fill="x", padx=48, pady=(18, 0))
 
@@ -186,8 +150,6 @@ class WeatherDashboard(tk.Tk):
         )
         self.wind_caption.grid(row=1, column=1, pady=(3, 0))
 
-        # ---- Bottom watermark -------------------------------------------------
-        # Packed BEFORE the status label so it ends up at the very bottom edge.
         self.watermark_label = tk.Label(
             self,
             text="made by zencps",
@@ -196,22 +158,13 @@ class WeatherDashboard(tk.Tk):
         )
         self.watermark_label.pack(side="bottom", pady=(0, 6))
 
-        # ---- Status / error line ---------------------------------------------
         self.status_label = tk.Label(
             self, text="", font=(FONT_FAMILY, 10), wraplength=380
         )
         self.status_label.pack(side="bottom", fill="x", pady=(12, 0))
 
-    # ------------------------------------------------------------------ #
-    #  Dynamic re-theming
-    # ------------------------------------------------------------------ #
     def _apply_theme(self, theme: dict) -> None:
-        """Repaint every widget so the window matches *theme*.
 
-        Called with IDLE_THEME at startup and then again with one of the
-        THEME_BY_CONDITION entries after every successful search -- that is
-        what makes the background colour change with the weather.
-        """
         bg, card, accent = theme["background"], theme["card"], theme["accent"]
 
         self.configure(bg=bg)
@@ -246,9 +199,7 @@ class WeatherDashboard(tk.Tk):
         self.status_label.configure(bg=bg)
         self.watermark_label.configure(bg=bg, fg=WATERMARK_COLOR)
 
-    # ------------------------------------------------------------------ #
-    #  Event handlers (search flow: View -> Engine -> View)
-    # ------------------------------------------------------------------ #
+
     def _on_search(self) -> None:
         city = self.city_entry.get().strip()
         if not city:
@@ -256,24 +207,22 @@ class WeatherDashboard(tk.Tk):
             return
 
         self._set_status(f'Fetching weather for "{city}" ...')
-        self.update_idletasks()  # let the status paint before the blocking request
+        self.update_idletasks()  
 
         try:
-            # <-- THE CONNECTION POINT: the view asks the engine for data.
             weather = get_weather(city, self._api_key)
         except MissingAPIKeyError as exc:
             self._set_status("Missing API key.", error=True)
             messagebox.showerror("API key missing", str(exc))
             return
         except WeatherAPIError as exc:
-            # Friendly message such as "City not found ..." shown on screen.
+
             self._set_status(str(exc), error=True)
             return
 
         self._render(weather)
 
     def _render(self, weather: dict) -> None:
-        """Paint the returned engine data onto all labels + apply the theme."""
         group = condition_group(weather["condition_id"])
         self._apply_theme(THEME_BY_CONDITION[group])
 

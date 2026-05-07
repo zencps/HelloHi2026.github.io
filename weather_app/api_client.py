@@ -1,36 +1,9 @@
-"""api_client.py -- The Engine of the Weather Dashboard.
-
-This module owns ALL network traffic. It wraps the free OpenWeatherMap
-"current weather" endpoint and converts the raw JSON into a small,
-display-ready dictionary:
-
-    {
-        "city": "London",
-        "country": "GB",
-        "temperature": 21,        # degrees Celsius
-        "feels_like": 20,         # degrees Celsius
-        "humidity": 72,           # percent
-        "wind_speed": 4.6,        # metres per second (metric units)
-        "description": "Light rain",
-        "condition_id": 501,      # raw OWM id, used by interface.py for theming
-    }
-
-Errors are raised as WeatherAPIError / MissingAPIKeyError carrying
-user-friendly messages that interface.py can display directly.
-"""
-
 import requests
 
-# --------------------------------------------------------------------------- #
-#  Constants
-# --------------------------------------------------------------------------- #
 API_URL = "https://api.openweathermap.org/data/2.5/weather"
 TIMEOUT_SECONDS = 10
 
 
-# --------------------------------------------------------------------------- #
-#  Exceptions (caught by the interface layer)
-# --------------------------------------------------------------------------- #
 class WeatherAPIError(Exception):
     """City not found, network down, unexpected response, etc."""
 
@@ -39,9 +12,6 @@ class MissingAPIKeyError(Exception):
     """No API key was supplied to get_weather()."""
 
 
-# --------------------------------------------------------------------------- #
-#  Public API used by interface.py
-# --------------------------------------------------------------------------- #
 def get_weather(city: str, api_key: str) -> dict:
     """Fetch live weather for *city* and return a normalised dictionary.
 
@@ -58,7 +28,7 @@ def get_weather(city: str, api_key: str) -> dict:
     params = {
         "q": city.strip(),
         "appid": api_key.strip(),
-        "units": "metric",  # change to "imperial" for Fahrenheit / mph
+        "units": "metric", 
     }
 
     try:
