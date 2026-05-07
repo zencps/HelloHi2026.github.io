@@ -1,0 +1,18 @@
+# ---- Private keys / secrets (never commit these) --------------------------
+.env
+
+# ---- Python caches ---------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# ---- Virtual environments --------------------------------------------------
+.venv/
+venv/
+env/
+
+# ---- IDE / OS junk ----------------------------------------------------------
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
